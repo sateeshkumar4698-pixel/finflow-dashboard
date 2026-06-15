@@ -16,7 +16,7 @@ router.get('/indices', async (_req, res) => {
 // GET /api/market/nifty50
 router.get('/nifty50', async (_req, res) => {
   try {
-    const quotes = await getMultipleQuotes(NIFTY50_SYMBOLS.slice(0, 20));
+    const quotes = await getMultipleQuotes(NIFTY50_SYMBOLS);
     res.json(quotes);
   } catch (e: any) {
     res.status(500).json({ error: e.message });

@@ -11,11 +11,19 @@ import { getMultipleQuotes } from './services/marketService.js';
 
 const app = express();
 const httpServer = createServer(app);
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:4173',
+  'https://sateeshkumar4698-pixel.github.io',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
 const io = new Server(httpServer, {
-  cors: { origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:4173'] },
+  cors: { origin: ALLOWED_ORIGINS, credentials: true },
 });
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:4173'] }));
+app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));

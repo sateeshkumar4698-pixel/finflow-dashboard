@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: finflow-backend
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: npm ci --include=dev
+    startCommand: npm run server:start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://sateeshkumar4698-pixel.github.io

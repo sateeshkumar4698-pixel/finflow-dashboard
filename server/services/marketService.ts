@@ -85,23 +85,36 @@ export async function getHistory(
   const intervalMap: Record<string, '5m' | '15m' | '1d'> = {
     '1d': '5m', '5d': '15m', '1mo': '1d', '3mo': '1d', '6mo': '1d', '1y': '1d',
   };
-  const periodMap: Record<string, string> = {
-    '1d': '1d', '5d': '5d', '1mo': '1mo', '3mo': '3mo', '6mo': '6mo', '1y': '1y',
-  };
+  // Convert range string to actual Date (yahoo-finance2 v3 requires Date or timestamp)
+  const now = new Date();
+  function period1Date(r: string): Date {
+    const d = new Date(now);
+    switch (r) {
+      case '1d': d.setDate(d.getDate() - 1); break;
+      case '5d': d.setDate(d.getDate() - 5); break;
+      case '1mo': d.setMonth(d.getMonth() - 1); break;
+      case '3mo': d.setMonth(d.getMonth() - 3); break;
+      case '6mo': d.setMonth(d.getMonth() - 6); break;
+      case '1y': d.setFullYear(d.getFullYear() - 1); break;
+    }
+    return d;
+  }
 
   const result = await yahooFinance.chart(symbol, {
-    period1: periodMap[range],
+    period1: period1Date(range),
     interval: intervalMap[range],
   });
 
-  return (result.quotes ?? []).map((q) => ({
-    date: new Date(q.date).toISOString(),
-    open: q.open ?? 0,
-    high: q.high ?? 0,
-    low: q.low ?? 0,
-    close: q.close ?? 0,
-    volume: q.volume ?? 0,
-  }));
+  return (result.quotes ?? [])
+    .filter((q) => q.close != null && q.close > 0)
+    .map((q) => ({
+      date: new Date(q.date).toISOString(),
+      open: q.open ?? 0,
+      high: q.high ?? 0,
+      low: q.low ?? 0,
+      close: q.close ?? 0,
+      volume: q.volume ?? 0,
+    }));
 }
 
 export async function searchStocks(query: string) {
